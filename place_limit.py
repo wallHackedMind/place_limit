@@ -13,8 +13,7 @@ INCH_BASE_URL = "https://limit-orders.1inch.io/v3.0/"
 ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 
-w3 = Web3(Web3.HTTPProvider(
-    "https://binance.llamarpc.com"))
+w3 = Web3(Web3.HTTPProvider())  # need RPC
 
 
 limit_order_contract = "0x1111111254EEB25477B68fb85Ed929f73A960582"
@@ -24,12 +23,12 @@ limit_order_contract_instance = w3.eth.contract(
 
 # здесь контракты https://github.com/1inch/limit-order-protocol-utils/blob/master/src/series-nonce-manager.const.ts
 series_manager_address = w3.to_checksum_address(
-    '0x58ce0e6ef670c9a05622f4188faa03a9e12ee2e4')
+    '0x303389f541ff2d620e42832f180a08e767b28e10')
 
 series_manager = w3.eth.contract(
     address=series_manager_address, abi=NONCE_MANAGER)
 
-chain_id = 56
+chain_id = 1
 
 order_types = [
     {"name": "salt", "type": "uint256"},
@@ -192,7 +191,7 @@ def place_limit(
         "takerAsset": (Web3.to_checksum_address(token_out)),
         "maker": (Web3.to_checksum_address(wallet_address)),
         "receiver": (ZERO_ADDRESS),
-        "allowedSender": ("0x0000000000000000000000000000000000000000"),
+        "allowedSender": (ZERO_ADDRESS),
         "makingAmount": (str(amount_in_wei)),
         "takingAmount": (str(amount_out_wei)),
         "offsets": (str(getOffsets(all_interactions))),
@@ -242,13 +241,15 @@ def place_limit(
         error = r.json()['error']
         raise UndefinedError(f"{msg, error}")
 
+    return limit_order['orderHash']
 
-place_limit(
-    '0x55d398326f99059fF775485246999027B3197955',
-    '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
-    10,
-    0.043,
-    360000000000,
-    '0x2126d4C51F05159993d8f509E0172520426120a9',
-    '0x2ad6db4866f04fb2ea1ceb6f1ce3cd852ae097c8a2a014c4f65aa70aae6baa40'
-)
+
+# place_limit(
+#     '0x55d398326f99059fF775485246999027B3197955',
+#     '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+#     10,
+#     0.043,
+#     360000000000,
+#     '0x2126d4C51F05159993d8f509E0172520426120a9',
+#     '0x2ad6db4866f04fb2ea1ceb6f1ce3cd852ae097c8a2a014c4f65aa70aae6baa40'
+# )
